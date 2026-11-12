@@ -1,84 +1,63 @@
 <script setup>
 /**
- * 404 兜底页
- * 由路由 `/:pathMatch(.*)*` 命中，覆盖所有未匹配路径（含任意深度的子路径）。
- * 5 秒后自动回首页，可手动取消；同时提供「返回上一页」。
+ * 404 兜底页 —— 与原 public/404.html 保持一致
+ *
+ * 结构、文案、内联样式、动画都照搬原页面；原页面的 `<meta http-equiv="refresh" content="5;url=/">`
+ * 换成 5 秒后 router.replace('/')，视觉与跳转时长不变。
+ * 原页面靠 /assets/notfound.js 启动安全防护，SPA 里防护已由 router 全局接管，无需重复挂载。
  */
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { onBeforeUnmount, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
-const REDIRECT_SECONDS = 5;
+import '@/styles/view/notfound.css';
 
-const route = useRoute();
+// 与原来的 meta refresh 一致
+const REDIRECT_DELAY = 5000;
+
 const router = useRouter();
-
-const countdown = ref(REDIRECT_SECONDS);
-const autoRedirect = ref(true);
-
 let timer = null;
 
-const requestedPath = computed(() => route.fullPath);
-
-function stopCountdown() {
-  autoRedirect.value = false;
-  clearInterval(timer);
-  timer = null;
-}
-
-function goHome() {
-  stopCountdown();
-  router.replace('/');
-}
-
-function goBack() {
-  stopCountdown();
-
-  // 直接打开该地址时没有可回退的历史，退化为首页
-  if (window.history.state?.back) {
-    router.back();
-  } else {
-    router.replace('/');
-  }
-}
-
 onMounted(() => {
-  timer = setInterval(() => {
-    countdown.value -= 1;
-    if (countdown.value <= 0) goHome();
-  }, 1000);
+  timer = setTimeout(() => router.replace('/'), REDIRECT_DELAY);
 });
 
 onBeforeUnmount(() => {
-  clearInterval(timer);
+  clearTimeout(timer);
 });
 </script>
 
 <template>
   <div class="page-notfound">
-    <div class="panel">
-      <div class="kicker">EDGE · ROUTE NOT FOUND</div>
-      <div class="code">404</div>
-      <div class="title">这条路径上没有灯</div>
-
-      <p class="desc">
-        请求的页面不存在，或者已经搬走了。<br />
-        检查一下地址拼写，或者从首页重新出发。
-      </p>
-
-      <code class="path">{{ requestedPath }}</code>
-
-      <div class="actions">
-        <a class="primary" href="/" @click.prevent="goHome">返回首页</a>
-        <button type="button" @click="goBack">返回上一页</button>
+    <div id="t-ov">
+      <div class="motime">
+        <div id="head-body"></div>
+        <div id="head-topcover"></div>
+        <div id="head-toplogo-bg"></div>
+        <div id="head-toplogo"></div>
+        <div id="head-toplogo-2"></div>
+        <div id="head-bottom"></div>
+        <div id="head-bottom-2"></div>
+        <div id="head-sw"></div>
+        <div id="head-sw-2"></div>
+        <div id="head-eye"></div>
+        <div id="head-eye-2"></div>
       </div>
-
-      <div class="footnote" v-if="autoRedirect">
-        <strong>{{ countdown }}</strong> 秒后自动返回首页 ·
-        <a href="#" @click.prevent="stopCountdown">取消跳转</a>
-      </div>
-      <div class="footnote" v-else>已取消自动跳转</div>
     </div>
+
+    <iframe frameborder="0" scrolling="no" src="" width="100%" height="100px"></iframe>
+
+    <h1 style="text-align: center">
+      <span style="color: #555; font-family: 'Microsoft YaHei'">jvze@pm.me</span>
+    </h1>
+    <blockquote>
+      <p style="text-align: center">
+        <span style="font-size: 14pt; font-family: 'comic sans ms', sans-serif">
+          <span style="color: #555; font-family: 'Microsoft YaHei'">正在为您跳转&nbsp;</span>
+          <!-- 原页面两个 span 之间的换行会渲染成一个空格；Vue 编译会丢掉纯空白节点，这里用插值显式补回 -->
+          {{ ' ' }}
+          <span style="color: #555540">Jvz's Space</span>
+        </span>
+      </p>
+    </blockquote>
   </div>
 </template>
-
-<style scoped src="../styles/view/notfound.css"></style>

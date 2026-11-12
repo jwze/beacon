@@ -1,10 +1,17 @@
-# Cloudflare Pages 回退规则
-#
-# 站点是 SPA（vue-router history 模式），所有未知路径都要交给 index.html，
-# 由 /:pathMatch(.*)* 路由在客户端渲染 404 页面。
-#
-# 缺失的静态资源不返回 HTML，避免 200 + text/html 污染缓存：
-/assets/*  /404.html   404
-#
-# 其余请求一律回退到入口（静态资源仍按原路径命中，不走重写）
-/*         /index.html  200
+# ⚠️ 本文件由 npm run proxy:sync 生成，来源 src/config/external.js，请勿手改。
+
+# 反代路径 /gitea：由 Cloudflare 边缘（Tunnel / Origin Rules）接管
+/gitea      /404.html  404
+/gitea/*    /404.html  404
+# 反代路径 /speedtest：由 Cloudflare 边缘（Tunnel / Origin Rules）接管
+/speedtest      /404.html  404
+/speedtest/*    /404.html  404
+# 反代路径 /probe：由 Cloudflare 边缘（Tunnel / Origin Rules）接管
+/probe      /404.html  404
+/probe/*    /404.html  404
+
+# 缺失的静态资源不回退成 HTML
+/assets/*  /404.html  404
+
+# 其余请求交给 SPA（前端路由渲染页面 / 404）
+/*  /index.html  200

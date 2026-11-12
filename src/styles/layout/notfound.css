@@ -1,22 +1,44 @@
 /**
  * 404 页布局层（全局）
- * 未匹配路径统一落到这里，视觉与 relay 页同一套深色终端风格。
+ *
+ * 原 404 页的 body 只有一条声明，这里原样保留，用 body.page-notfound 门控。
+ * 后面几条是「把 base.css 的全局 reset 覆盖掉、还原成原页面依赖的浏览器默认值」，
+ * 不补回来 mascot 的边框尺寸和 h1 / blockquote 的间距就会和原页面不一致。
  */
 body.page-notfound {
-  background: #05070a;
-  font-family: 'Roboto Mono', ui-monospace, 'SF Mono', Menlo, monospace;
-  color: #dbe7f3;
-  min-height: 100vh;
-  overflow-x: hidden;
+  min-width: 320px;
+  background: #333;
+
+  /* 原页面没有做任何 reset：body 保留 UA 默认的 8px 外边距 */
+  margin: revert;
+
+  /* base.css 给 html/body 设了 height:100%，再加上 8px 外边距会多出纵向滚动条 */
+  height: auto;
+
+  /* base.css 的 body 有 color:#fafafa 与 -webkit-font-smoothing:antialiased，
+     都会让文字（尤其 CJK 小字号）的渲染和原页面差几个像素，这里还原成浏览器默认 */
+  color: revert;
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
 }
 
-body.page-notfound::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: linear-gradient(#1a2533 0.5px, transparent 0.5px),
-    linear-gradient(90deg, #1a2533 0.5px, transparent 0.5px);
-  background-size: 48px 48px;
-  opacity: 0.25;
-  pointer-events: none;
+/* 原页面的 h1 / blockquote / p 用的是 UA 默认外边距，被全局 reset 清成 0，这里 revert 回去 */
+body.page-notfound h1,
+body.page-notfound blockquote,
+body.page-notfound blockquote p {
+  margin: revert;
+}
+
+/* 原页面没有 box-sizing 重置：#head-* 这些 div 靠 width + border 拼形状，
+   border-box 会把 border 算进 width，整个 mascot 会变形，必须还原成 content-box */
+#t-ov,
+#t-ov *,
+#t-ov *::before,
+#t-ov *::after {
+  box-sizing: revert;
+}
+
+/* #app 的 min-height:100% 在本页会把容器撑到视口高，影响 body 高度计算 */
+body.page-notfound #app {
+  min-height: 0;
 }

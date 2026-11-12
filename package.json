@@ -7,8 +7,10 @@
   "homepage": "https://115613.xyz",
   "scripts": {
     "dev": "vite",
+    "prebuild": "node scripts/generate-proxy-config.mjs",
     "build": "vite build",
     "preview": "vite preview --port 4173",
+    "proxy:sync": "node scripts/generate-proxy-config.mjs",
     "test": "node --test \"test/*.test.mjs\""
   },
   "keywords": [

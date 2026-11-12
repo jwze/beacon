@@ -49,11 +49,19 @@ export const routes = [
   },
 
   // ---- 兜底：必须放在最后，捕获所有未匹配路径 ----
+  // FallbackView 内再区分：反代路径 → 诊断页；其余 → 原版 404 页
   {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
-    component: () => import('../views/NotFoundView.vue'),
-    meta: { title: '404 · 页面不存在 | 115613.xyz', layout: 'notfound', lang: 'zh-CN' },
+    component: () => import('../views/FallbackView.vue'),
+    // meta 按原 public/404.html 还原：标题 Error Page、无 lang、无 viewport、无切换动画
+    meta: {
+      title: 'Error Page',
+      layout: 'notfound',
+      lang: null,
+      viewport: null,
+      transition: false,
+    },
   },
 ];
 

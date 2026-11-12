@@ -47,8 +47,18 @@ test('页面路由都带齐 meta', () => {
     assert.ok(route.meta, `${route.path} 缺少 meta`);
     assert.ok(route.meta.title, `${route.path} 缺少 meta.title`);
     assert.ok(route.meta.layout, `${route.path} 缺少 meta.layout`);
-    assert.ok(route.meta.lang, `${route.path} 缺少 meta.lang`);
+    // lang 允许为 null（表示与原页面一样不带 lang 属性），但必须显式声明
+    assert.ok('lang' in route.meta, `${route.path} 缺少 meta.lang`);
   });
+});
+
+test('404 路由按原版 404 页还原外壳设置', () => {
+  const notFound = routes.find((route) => route.name === 'not-found');
+
+  assert.equal(notFound.meta.title, 'Error Page'); // 原页面 <title>
+  assert.equal(notFound.meta.lang, null); // 原页面 <html> 无 lang
+  assert.equal(notFound.meta.viewport, null); // 原页面无 viewport meta
+  assert.equal(notFound.meta.transition, false); // 原页面没有切换动画
 });
 
 test('旧页面地址保留重定向', () => {
