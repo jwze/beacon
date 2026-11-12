@@ -1,0 +1,22 @@
+/**
+ * 404 页布局层（全局）
+ * 未匹配路径统一落到这里，视觉与 relay 页同一套深色终端风格。
+ */
+body.page-notfound {
+  background: #05070a;
+  font-family: 'Roboto Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  color: #dbe7f3;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body.page-notfound::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(#1a2533 0.5px, transparent 0.5px),
+    linear-gradient(90deg, #1a2533 0.5px, transparent 0.5px);
+  background-size: 48px 48px;
+  opacity: 0.25;
+  pointer-events: none;
+}

@@ -68,6 +68,18 @@ export class TextScramble {
   randomChar() {
     return this.chars[Math.floor(Math.random() * this.chars.length)];
   }
+
+  /** 停止动画并释放待决 Promise（组件卸载时调用） */
+  destroy() {
+    cancelAnimationFrame(this.frameRequest);
+    this.frameRequest = null;
+    this.queue = [];
+
+    if (this.resolve) {
+      this.resolve();
+      this.resolve = null;
+    }
+  }
 }
 
 export default TextScramble;

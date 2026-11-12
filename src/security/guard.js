@@ -2,20 +2,35 @@
  * 安全防护
  * 检测异常流量（频率 / UA / 来源 / 连点）并重定向到 relay 展示页。
  * 仅在浏览器侧生效，属于「挡掉低级扫描器」的轻量防线，不能替代服务端防护。
+ *
+ * SPA 用法：createGuard() 拿到实例，由 router 的 afterEach 调用 check()，
+ * 页面级监听只装一次（start() / stop()）。
  */
 import { SECURITY_CONFIG } from './config.js';
 
 const now = () => Date.now();
 
 /**
- * 启动防护（幂等）
- * @param {object} [config] 覆盖默认配置
+ * @param {typeof SECURITY_CONFIG} [config] 覆盖默认配置
+ * @returns {{ start: () => void, stop: () => void, check: () => void }}
  */
-export function initSecurityGuard(config = SECURITY_CONFIG) {
+export function createGuard(config = SECURITY_CONFIG) {
   const storage = window.localStorage;
+  let started = false;
+  let pollTimer = null;
 
-  const isWhitelisted = (path) =>
-    config.whitelistPaths.some((whitePath) => path === whitePath || path.startsWith(whitePath));
+  const onDocumentClick = () => {
+    if (trackClick()) redirectToRelay();
+  };
+
+  const onPoll = () => {
+    if (isInCooldown()) redirectToRelay();
+  };
+
+  const isWhitelisted = (path = window.location.pathname) =>
+    config.whitelistPaths.some(
+      (whitePath) => path === whitePath || path.startsWith(`${whitePath.replace(/\/$/, '')}/`),
+    );
 
   const isInCooldown = () => {
     const blockedUntil = storage.getItem(config.storageKeys.blockedUntil);
@@ -95,6 +110,8 @@ export function initSecurityGuard(config = SECURITY_CONFIG) {
 
   /** 连点检测：超过阈值返回 true */
   const trackClick = () => {
+    if (!config.enableBehaviorCheck) return false;
+
     const timestamp = now();
     let clickHistory = [];
 
@@ -117,8 +134,9 @@ export function initSecurityGuard(config = SECURITY_CONFIG) {
     return false;
   };
 
-  const runSecurityCheck = () => {
-    if (isWhitelisted(window.location.pathname)) return;
+  /** 每次导航后调用一次 */
+  function check() {
+    if (isWhitelisted()) return;
 
     if (isInCooldown()) {
       redirectToRelay();
@@ -134,28 +152,48 @@ export function initSecurityGuard(config = SECURITY_CONFIG) {
       console.warn('[Guard] Threats detected:', threats);
       redirectToRelay();
     }
-  };
+  }
 
-  const start = () => {
-    runSecurityCheck();
+  function start() {
+    if (started) return;
+    started = true;
 
-    document.addEventListener('click', () => {
-      if (trackClick()) redirectToRelay();
-    });
-
-    // 定期检查冷却状态（每 30 秒）
-    setInterval(() => {
-      if (isInCooldown()) redirectToRelay();
-    }, 30000);
+    document.addEventListener('click', onDocumentClick);
+    pollTimer = window.setInterval(onPoll, 30000);
 
     console.info('[Guard] Security guard initialized');
+  }
+
+  function stop() {
+    if (!started) return;
+    started = false;
+
+    document.removeEventListener('click', onDocumentClick);
+    if (pollTimer) window.clearInterval(pollTimer);
+    pollTimer = null;
+  }
+
+  return { start, stop, check };
+}
+
+/**
+ * 兼容一次性初始化（非 SPA 场景）：直接启动并立即检查一次。
+ * @param {typeof SECURITY_CONFIG} [config]
+ */
+export function initSecurityGuard(config = SECURITY_CONFIG) {
+  const guard = createGuard(config);
+  const run = () => {
+    guard.start();
+    guard.check();
   };
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', start, { once: true });
+    document.addEventListener('DOMContentLoaded', run, { once: true });
   } else {
-    start();
+    run();
   }
+
+  return guard;
 }
 
 export default initSecurityGuard;

@@ -114,8 +114,13 @@ export class ShaderProgram {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
     gl[options.depthTest ? 'enable' : 'disable'](gl.DEPTH_TEST);
 
-    if (options.autosize) window.addEventListener('resize', (e) => this.resize(e), false);
-    if (options.mousemove) window.addEventListener('mousemove', (e) => this.mousemove(e), false);
+    this._onResize = (e) => this.resize(e);
+    this._onMousemove = (e) => this.mousemove(e);
+    this._frameId = 0;
+    this._disposed = false;
+
+    if (options.autosize) window.addEventListener('resize', this._onResize, false);
+    if (options.mousemove) window.addEventListener('mousemove', this._onMousemove, false);
 
     this.resize();
 
@@ -351,6 +356,8 @@ export class ShaderProgram {
   }
 
   update() {
+    if (this._disposed) return;
+
     const gl = this.gl;
     const now = performance.now();
     const elapsed = (now - this.time.start) / 5000;
@@ -362,7 +369,27 @@ export class ShaderProgram {
       gl.drawArrays(gl.POINTS, 0, this.count);
     }
     this.onUpdate(delta);
-    requestAnimationFrame(this.update);
+    this._frameId = requestAnimationFrame(this.update);
+  }
+
+  /** 停止渲染循环、解绑事件并移除 canvas（SPA 页面卸载时调用） */
+  dispose() {
+    if (this._disposed) return;
+    this._disposed = true;
+
+    cancelAnimationFrame(this._frameId);
+    window.removeEventListener('resize', this._onResize, false);
+    window.removeEventListener('mousemove', this._onMousemove, false);
+
+    if (this.canvas && this.canvas.parentNode) {
+      this.canvas.parentNode.removeChild(this.canvas);
+    }
+
+    const loseContext = this.gl?.getExtension('WEBGL_lose_context');
+    loseContext?.loseContext();
+
+    this.canvas = null;
+    this.gl = null;
   }
 }
 

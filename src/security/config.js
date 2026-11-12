@@ -9,7 +9,7 @@ export const SECURITY_CONFIG = Object.freeze({
   maxClicksPerSecond: 10, // 每秒最大点击数
 
   // 重定向配置
-  redirectUrl: '/relay.html', // 防攻击展示页地址
+  redirectUrl: '/relay', // 防攻击展示页地址（SPA 路由）
   cooldownTime: 300000, // 冷却时间（5 分钟，单位毫秒）
 
   // 检测开关
@@ -23,8 +23,8 @@ export const SECURITY_CONFIG = Object.freeze({
   // 可疑 User-Agent 关键词
   suspiciousUserAgents: ['bot', 'crawler', 'spider', 'hack', 'attack', 'ddos', 'flood'],
 
-  // 白名单（不检测的路径）
-  whitelistPaths: ['/relay.html', '/security.js', '/guard.js'],
+  // 白名单（不检测的路径，前缀匹配）
+  whitelistPaths: ['/relay', '/relay.html'],
 
   // 存储键名
   storageKeys: {

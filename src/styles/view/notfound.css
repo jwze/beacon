@@ -1,0 +1,153 @@
+/* 404 页元素样式（由 NotFoundView 以 scoped 引入） */
+.page-notfound {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.panel {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  padding: 2.5rem 2rem 2rem;
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  border-radius: 16px;
+  background: rgba(9, 14, 22, 0.72);
+  backdrop-filter: blur(18px);
+  text-align: center;
+  overflow: hidden;
+}
+
+.panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.14), transparent 62%);
+  pointer-events: none;
+}
+
+.kicker {
+  position: relative;
+  font-size: 0.68rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #5f7f9e;
+}
+
+.code {
+  position: relative;
+  margin: 0.6rem 0 0.2rem;
+  font-size: clamp(4.5rem, 20vw, 7rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: #e8f4ff;
+  text-shadow:
+    0 0 24px rgba(56, 189, 248, 0.45),
+    0 0 60px rgba(45, 212, 191, 0.2);
+}
+
+.title {
+  position: relative;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #9acdff;
+  letter-spacing: 1px;
+}
+
+.desc {
+  position: relative;
+  margin-top: 0.7rem;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: #6c86a3;
+}
+
+.path {
+  position: relative;
+  display: block;
+  margin: 1rem auto 0;
+  padding: 0.55rem 0.8rem;
+  max-width: 100%;
+  border: 1px solid rgba(56, 189, 248, 0.18);
+  border-radius: 8px;
+  background: rgba(56, 189, 248, 0.05);
+  color: #7dd3fc;
+  font-size: 0.78rem;
+  word-break: break-all;
+}
+
+.actions {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+  margin-top: 1.6rem;
+}
+
+.actions a,
+.actions button {
+  font: inherit;
+  font-size: 0.76rem;
+  letter-spacing: 1px;
+  padding: 0.55rem 1.1rem;
+  border-radius: 40px;
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  background: transparent;
+  color: #9acdff;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.actions a:hover,
+.actions button:hover {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.55);
+  color: #e8f4ff;
+}
+
+.actions .primary {
+  background: rgba(56, 189, 248, 0.16);
+  color: #e8f4ff;
+}
+
+.footnote {
+  position: relative;
+  margin-top: 1.4rem;
+  font-size: 0.7rem;
+  color: #4c6580;
+  letter-spacing: 0.5px;
+}
+
+.footnote strong {
+  color: #7dd3fc;
+  font-weight: 500;
+}
+
+.footnote a {
+  color: #7dd3fc;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.footnote a:hover {
+  color: #e8f4ff;
+}
+
+@media (max-width: 480px) {
+  .panel {
+    padding: 2rem 1.25rem 1.5rem;
+  }
+  .desc {
+    font-size: 0.76rem;
+  }
+}

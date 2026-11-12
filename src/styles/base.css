@@ -1,0 +1,49 @@
+/**
+ * 全局基线
+ *
+ * 只负责 SPA 外壳：重置、#app 容器、路由过渡。
+ * 各页面的视觉（背景、字体、装饰层）在 styles/layout/<page>.css 中按 body.page-* 门控，
+ * 页面内部元素的样式则写在对应视图组件里（scoped）。
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: #000;
+  color: #fafafa;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  min-height: 100%;
+}
+
+/* 路由切换过渡 */
+.page-fade-enter-active,
+.page-fade-leave-active {
+  transition: opacity 0.18s ease;
+}
+
+.page-fade-enter-from,
+.page-fade-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-fade-enter-active,
+  .page-fade-leave-active {
+    transition: none;
+  }
+}

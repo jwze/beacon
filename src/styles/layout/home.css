@@ -1,0 +1,18 @@
+/**
+ * 首页布局层（全局）
+ * 仅在 body.page-home 上生效，避免与其它页面的 body 样式互相污染。
+ */
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono:100');
+
+body.page-home {
+  font-family: 'Roboto Mono', monospace;
+  background: #000;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* TextScramble 在运行时注入 <span class="dud">，元素不带 scoped 标记，
+   因此这条样式必须留在全局层，不能写进 HomeView 的 scoped 样式。 */
+body.page-home .dud {
+  color: #757575;
+}

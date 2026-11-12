@@ -1,0 +1,24 @@
+/**
+ * Relay 页布局层（全局）
+ * 按 body.page-relay 门控；卡片内部样式见 styles/view/relay.css。
+ */
+body.page-relay {
+  background: #05070a;
+  font-family: 'Inter', system-ui, -apple-system, 'SF Pro Display', 'Segoe UI', monospace;
+  position: relative;
+  overflow: hidden;
+}
+
+body.page-relay::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(#1a2533 0.5px, transparent 0.5px),
+    linear-gradient(90deg, #1a2533 0.5px, transparent 0.5px);
+  background-size: 48px 48px;
+  opacity: 0.2;
+  pointer-events: none;
+}
