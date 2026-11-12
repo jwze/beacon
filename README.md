@@ -8,12 +8,14 @@
 
 ## 页面一览
 
-| 路径 | 说明 |
-| --- | --- |
-| `/` | 首页：WebGL 粒子波浪背景 + 文字乱码动画 + 站点入口 |
-| `/luhn.html` | LUHN 卡号生成器：按模式枚举满足 Luhn 校验的卡号 |
-| `/relay.html` | Relay 展示页：显示访问者出口 IP 与归属地，异常流量会被引导至此 |
-| `/404.html` | 错误页：5 秒后自动回到首页 |
+| 路径 | 说明 | 源文件 |
+| --- | --- | --- |
+| `/` | 首页：WebGL 粒子波浪背景 + 文字乱码动画 + 站点入口 | `pages/index.html` |
+| `/luhn.html` | LUHN 卡号生成器：按模式枚举满足 Luhn 校验的卡号 | `pages/luhn.html` |
+| `/relay.html` | Relay 展示页：显示访问者出口 IP 与归属地，异常流量会被引导至此 | `pages/relay.html` |
+| `/404.html` | 错误页：5 秒后自动回到首页 | `public/404.html`（原样拷贝） |
+
+HTML 入口统一收在 `pages/`，但对外路径仍是上表中的站点根路径，原因见下方「目录约定」。
 
 ## 技术栈
 
@@ -27,13 +29,15 @@
 
 ```
 beacon/
-├── index.html              # 首页入口
-├── luhn.html               # Luhn 生成器入口
-├── relay.html              # Relay 展示页入口
-├── vite.config.js          # 多页面入口与产物命名
+├── pages/                  # Vite root：全部 HTML 入口（对外仍是站点根路径）
+│   ├── index.html          # 首页入口 → /
+│   ├── luhn.html           # Luhn 生成器入口 → /luhn.html
+│   └── relay.html          # Relay 展示页入口 → /relay.html
+├── vite.config.js          # 多页面入口、root / 别名与产物命名
 ├── package.json
 ├── public/                 # 原样拷贝到产物根目录的静态资源
 │   ├── 404.html            # 错误页（含大量内联样式，保持原样）
+│   ├── _headers            # Cloudflare Pages 响应头
 │   ├── icon.ico
 │   └── logo.png
 ├── src/
@@ -62,6 +66,21 @@ beacon/
     └── luhn.test.mjs       # 算法回归测试
 ```
 
+### 目录约定
+
+三个 HTML 入口集中在 `pages/`，Vite 的 `root` 指向该目录，因此构建产物中的 HTML 仍位于 `dist/` 根目录：线上 URL（`/`、`/luhn.html`、`/relay.html`）以及 `src/config/site.js`、`src/security/config.js` 中硬编码的跳转地址都不需要改动。
+
+因为 `root` 下移了一层，`vite.config.js` 里做了这些配套设置：
+
+| 配置 | 作用 |
+| --- | --- |
+| `publicDir` / `build.outDir` | 显式指回项目根的 `public/` 与 `dist/`，`emptyOutDir: true` |
+| `cacheDir` / `envDir` | 显式指回项目根，避免在 `pages/` 下生成缓存或读不到 `.env` |
+| `resolve.alias` | 把 HTML 中的 `/src/...` 映射回项目根的 `src/`（dev 与 build 都生效） |
+| `server.fs.allow` | 放行项目根，使 `root` 之外的源码模块可访问 |
+
+新增页面：在 `pages/` 下添加 HTML，并登记到 `vite.config.js` 的 `build.rollupOptions.input`，产物路径与页面 URL 保持一致。
+
 ## 本地开发
 
 ```bash
@@ -77,12 +96,12 @@ npm run preview    # 本地预览产物，http://localhost:4173
 npm test           # Luhn 算法回归测试
 ```
 
-构建产物：
+构建产物（HTML 仍位于产物根目录，不受源码 `pages/` 目录影响）：
 
 ```
 dist/
 ├── index.html  luhn.html  relay.html
-├── 404.html  icon.ico  logo.png
+├── 404.html  _headers  icon.ico  logo.png
 └── assets/     # 带 hash 的 CSS；入口 JS 固定名（供 404.html 引用）
 ```
 
